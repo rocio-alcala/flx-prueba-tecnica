@@ -1,4 +1,5 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { User } from "../../src/App";
 
 export const usersApi = createApi({
   reducerPath: "usersApi",
@@ -6,7 +7,7 @@ export const usersApi = createApi({
   //que se produzca una modificacion en la bd
   baseQuery: fetchBaseQuery({ baseUrl: "http://localhost:4000/" }),
   endpoints: (builder) => ({
-    getUsers: builder.query<Users[], void>({
+    getUsers: builder.query<User[], void>({
       query: () => "users",
       providesTags: ["users"]
     }),
@@ -17,7 +18,7 @@ export const usersApi = createApi({
       }),
       invalidatesTags: ["users"]
     }),
-    updateUserById: builder.mutation<void, User>({
+    updateUserById: builder.mutation<User, User>({
       query: (updatedUser) => ({
         url: `users/${updatedUser.id}`,
         method: "PUT",
@@ -25,7 +26,7 @@ export const usersApi = createApi({
       }),
       invalidatesTags: ["users"]
     }),
-    createUser: builder.mutation<void, User>({
+    createUser: builder.mutation<User, User>({
       query: (newUser) => ({
         url: "users",
         method: "POST",
