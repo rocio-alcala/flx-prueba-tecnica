@@ -3,12 +3,12 @@ import { useDeleteUserByIdMutation } from "../../store/api/usersApi";
 import { User } from "../App";
 
 interface CheckDeletePropsType {
-  clearUser: React.Dispatch<React.SetStateAction<User | undefined>>
+  onSuccess: () => void;
   selectedUser?: User;
 }
 
 export default function CheckDelete({
-  clearUser,
+  onSuccess,
   selectedUser
 }: CheckDeletePropsType) {
   const [deleteUser] = useDeleteUserByIdMutation();
@@ -26,7 +26,7 @@ export default function CheckDelete({
         message.error(`Hubo un problema elimiando usuario`);
         console.error(`Hubo un problema elimiando usuario: ${error}`);
       })
-      .finally(() => clearUser(undefined));
+      .finally(() => onSuccess());
   }
 
   return (

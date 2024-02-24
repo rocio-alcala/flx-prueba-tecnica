@@ -9,12 +9,12 @@ import { v4 as uuidv4 } from "uuid";
 interface UserFormPropsType {
   selectedUser?: User;
   action: string;
-  clearModal: React.Dispatch<React.SetStateAction<User | undefined>> | React.Dispatch<React.SetStateAction<boolean>>
+  onSuccess: () => void;
 }
 
 export function UserForm({
   selectedUser,
-  clearModal,
+  onSuccess,
   action
 }: UserFormPropsType) {
   const [createUser, createResponse] = useCreateUserMutation();
@@ -33,7 +33,7 @@ export function UserForm({
         message.error(`Hubo un problema agregando el usuario`);
         console.error(`Error agregando el usuario: ${error}`);
       })
-      .finally(() => clearModal(false));
+      .finally(() => onSuccess());
   }
 
   function handleSuccessUpdateUser(formValues: Omit<User, "id">) {
@@ -48,7 +48,7 @@ export function UserForm({
         message.error(`Hubo un problema editando el usuario`);
         console.error(`Error editando el usuario: ${error}`);
       })
-      .finally(() => clearModal(undefined));
+      .finally(() => onSuccess());
   }
 
   const onFinish = (formValues: User) => {

@@ -1,5 +1,18 @@
 import "./App.css";
-import { Button, Divider, Layout, Modal, Select, Table, Tag } from "antd";
+import {
+  Breadcrumb,
+  Button,
+  Col,
+  Divider,
+  Flex,
+  Layout,
+  Modal,
+  Row,
+  Select,
+  Space,
+  Table,
+  Tag
+} from "antd";
 import { Content, Header } from "antd/es/layout/layout";
 import Search from "antd/es/input/Search";
 import { useGetUsersQuery } from "../store/api/usersApi";
@@ -24,6 +37,7 @@ function App() {
   const [isCreateUserModalOpen, setIsCreateUserModalOpen] = useState(false);
   const [searchInput, setSearchInput] = useState("");
   const [selectedStatus, setSelectedStatus] = useState();
+  //TO-DO: crear memo que se actualice con el searchInput y filtro
 
   const columns = [
     {
@@ -89,7 +103,22 @@ function App() {
     }
   ];
 
-
+  const renderUsers = useMemo(() => {
+    if (users) {
+      const statusFilter =
+        selectedStatus && selectedStatus !== "all"
+          ? users.filter((user) => user.status === selectedStatus)
+          : users;
+      const searchFilter = searchInput
+        ? statusFilter.filter((user) =>
+            `${user.name} ${user.lastname}`
+              .toLocaleLowerCase()
+              .includes(searchInput.toLocaleLowerCase())
+          )
+        : statusFilter;
+      return searchFilter;
+    }
+  }, [users, selectedStatus, searchInput]);
 
   return (
     <>
@@ -101,26 +130,31 @@ function App() {
           />
         </Header>
         <Content className="content">
-          <p className="title">
-            Usuarios / <span>Listado de usuarios</span>
-          </p>
-          <div className="navbar">
-            <div className="subnavbar">
+          <Row>
+            <Col>
+              <Breadcrumb separator="/">
+                <Breadcrumb.Item>Usuarios</Breadcrumb.Item>
+                <Breadcrumb.Item>Listado de usuarios</Breadcrumb.Item>
+              </Breadcrumb>
+            </Col>
+          </Row>
+          <Flex justify="space-bet">
+            <Space>
               <Search
                 className="search navbaritem"
                 placeholder="Buscar usuarios"
-                value={searchInput}
-                onSearch={(e) => {
-                  setSearchInput(e);
+                width="50px"
+                onChange={(e) => {
+                  setSearchInput(e.target.value);
                 }}
                 size="large"
+                style={{ width: 300 }}
               />
               <Select
                 showSearch
                 onChange={(e) => {
                   setSelectedStatus(e);
                 }}
-                value={selectedStatus}
                 className="select navbaritem"
                 placeholder="Filtrar por estado"
                 options={[
@@ -131,56 +165,67 @@ function App() {
                   {
                     value: "inactive",
                     label: "Inactivo"
+                  },
+                  {
+                    value: "all",
+                    label: "Todos"
                   }
                 ]}
               />
-            </div>
-            <div>
-              <Button
-                className="adduser navbaritem"
-                type="primary"
-                onClick={() => setIsCreateUserModalOpen(true)}
-              >
-                Agregar usuario
-              </Button>
-            </div>
-          </div>
+            </Space>
+            <Button
+              className="adduser navbaritem"
+              type="primary"
+              onClick={() => setIsCreateUserModalOpen(true)}
+            >
+              Agregar usuario
+            </Button>
+          </Flex>
           <Table
             className="table"
-            dataSource={users}
+            dataSource={renderUsers}
             columns={columns}
             loading={isLoading}
+            key={"id"}
           />
         </Content>
       </Layout>
-      <Modal
-        onOk={() => setIsCreateUserModalOpen(false)}
-        onCancel={() => setIsCreateUserModalOpen(false)}
-        open={isCreateUserModalOpen}
-        title="Agregar usuario"
-        footer={null}
-        width={"572px"}
-      >
-        <Divider />
-        <UserForm action="create" clearModal={setIsCreateUserModalOpen} />
-      </Modal>
+
+      {/*       TO-DO AGREGAR COEMNTARIO */}
+      {isCreateUserModalOpen && (
+        <Modal
+          onOk={() => setIsCreateUserModalOpen(false)}
+          onCancel={() => setIsCreateUserModalOpen(false)}
+          open
+          title="Agregar usuario"
+          footer={null}
+          width={"572px"}
+        >
+          <Divider />
+          <UserForm
+            action="create"
+            onSuccess={() => setIsCreateUserModalOpen(false)}
+          />
+        </Modal>
+      )}
 
       {selectedUpdateUser && (
         <Modal
           onCancel={() => setSelectedUpdateUser(undefined)}
-          open={!!selectedUpdateUser}
+          open
           title="Editar usuario"
           footer={null}
           width={"572px"}
         >
           <Divider />
           <UserForm
+            onSuccess={() => setSelectedUpdateUser(undefined)}
             action="update"
             selectedUser={selectedUpdateUser}
-            clearModal={setSelectedUpdateUser}
           />
         </Modal>
       )}
+
       <Modal
         onCancel={() => setSelectedDeleteUser(undefined)}
         open={!!selectedDeleteUser}
@@ -188,7 +233,7 @@ function App() {
         footer={null}
       >
         <CheckDelete
-          clearUser={setSelectedDeleteUser}
+          onSuccess={() => setSelectedDeleteUser(undefined)}
           selectedUser={selectedDeleteUser}
         />
       </Modal>
