@@ -53,7 +53,6 @@ function App() {
     //si es una "" (falsy) no se pasa status param
   });
 
-
   const columns = [
     {
       title: "Usuario",
@@ -115,8 +114,8 @@ function App() {
         <Header style={{ backgroundColor: "#d9d9d9", height: "fit-content" }}>
           <Flex>
             <img
-              style={{ padding: "30px" }}
-              src="../../public/flexxus_logo.png"
+              style={{ padding: "20px" }}
+              src="https://flexxus.com.ar/wp-content/uploads/elementor/thumbs/logo-flexxus-header-pv8liah8khv6xfynvz03so9v98sk2tr50hts9we7dk.png"
             />
           </Flex>
         </Header>
