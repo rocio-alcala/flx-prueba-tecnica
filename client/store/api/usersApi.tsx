@@ -3,12 +3,27 @@ import { User } from "../../src/App";
 
 export const usersApi = createApi({
   reducerPath: "usersApi",
-  tagTypes: ["users"], //creo el tag "users" para invalidar request cada vez
-  //que se produzca una modificacion en la bd
+  // creo el tag "users" para invalidar request cada vez
+  // que se produzca una modificacion en la db
+  tagTypes: ["users"],
   baseQuery: fetchBaseQuery({ baseUrl: "http://localhost:4000/" }),
   endpoints: (builder) => ({
-    getUsers: builder.query<User[], void>({
-      query: () => "users",
+    getUsers: builder.query<
+      { dataset: User[]; totalset: number },
+      {
+        _limit: number;
+        _start: number;
+        name_like: string;
+        status?: string;
+      }
+    >({
+      query: (params) => ({ url: "users", params }),//envio los params en la request
+      transformResponse: (body: User[], meta) => ({
+        dataset: body,
+        totalset: Number(meta?.response?.headers.get("X-Total-Count")) 
+        //obtengo el total set desde la meta data para saber 
+        //el total de usuarios en cada busqueda y renderizarlo en <Pagination>
+      }),
       providesTags: ["users"]
     }),
     deleteUserById: builder.mutation<void, User["id"]>({

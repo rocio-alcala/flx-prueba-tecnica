@@ -1,14 +1,12 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { usersApi } from "./api/usersApi";
 
-
 export const store = configureStore({
-  //creamos la store que almacenara todos nuestros estados y agregamos el reducer de nuestra API
-  //y slices si existieran
+  // creamos la store que almacenara todos nuestros estados y agregamos el reducer de nuestra API
   reducer: {
     [usersApi.reducerPath]: usersApi.reducer,
   },
-   // Adding the api middleware enables caching, invalidation, polling,
+  // Adding the api middleware enables caching, invalidation, polling,
   // and other useful features of `rtk-query`.
   middleware: (getDefaultMiddleware) =>
   getDefaultMiddleware().concat(usersApi.middleware),

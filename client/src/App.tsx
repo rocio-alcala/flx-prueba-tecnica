@@ -1,4 +1,3 @@
-import "./App.css";
 import {
   Breadcrumb,
   Button,
@@ -7,18 +6,20 @@ import {
   Flex,
   Layout,
   Modal,
+  Pagination,
   Row,
   Select,
   Space,
   Table,
-  Tag
+  Tag,
+  message
 } from "antd";
 import { Content, Header } from "antd/es/layout/layout";
 import Search from "antd/es/input/Search";
 import { useGetUsersQuery } from "../store/api/usersApi";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { UserForm } from "./components/UserForm";
-import CheckDelete from "./components/CheckDelete";
+import ConfirmDelete from "./components/ConfirmDelete";
 
 export interface User {
   id: number | string;
@@ -30,14 +31,28 @@ export interface User {
   age: number;
 }
 
+const PAGE_COUNT = 9;
+
 function App() {
-  const { data: users, isLoading } = useGetUsersQuery();
   const [selectedDeleteUser, setSelectedDeleteUser] = useState<User>();
   const [selectedUpdateUser, setSelectedUpdateUser] = useState<User>();
   const [isCreateUserModalOpen, setIsCreateUserModalOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(0);
   const [searchInput, setSearchInput] = useState("");
   const [selectedStatus, setSelectedStatus] = useState();
-  //TO-DO: crear memo que se actualice con el searchInput y filtro
+  const {
+    data: { dataset: users, totalset } = {},
+    isLoading,
+    error: fetchError
+  } = useGetUsersQuery({
+    // se envian los params en la request para que la api json server realice el filtrado
+    _limit: PAGE_COUNT, //nos devuelve un limite de usuarios
+    _start: currentPage * PAGE_COUNT, //nos devuelve los usuarios apartir de nuestro offset
+    name_like: searchInput, //devuelve usuarios que coincidan name y searchInput
+    status: selectedStatus || undefined // devuelve usuarios con status igual a selectedStatus
+    //si es una "" (falsy) no se pasa status param
+  });
+
 
   const columns = [
     {
@@ -114,24 +129,35 @@ function App() {
               </Breadcrumb>
             </Col>
           </Row>
-          <Flex justify="space-bet">
+          <Flex
+            style={{ fontSize: "15px", padding: "20px 0px" }}
+            gap={40}
+            justify="space-between"
+          >
             <Space>
               <Search
-                className="search navbaritem"
-                placeholder="Buscar usuarios"
-                width="50px"
+                style={{ height: "40px", fontSize: "15px", width: "400px" }}
+                placeholder="Buscar usuarios por nombre"
                 onChange={(e) => {
+                  //para no realizar una llamada a la API en cada change
+                  //se podria setear el input en el onSearch
                   setSearchInput(e.target.value);
+                  setCurrentPage(0); // resetea paginacion a pagina 1 (0) en cada busqueda
                 }}
                 size="large"
-                style={{ width: 300 }}
               />
               <Select
+                style={{
+                  height: "40px",
+                  fontSize: "15px",
+                  margin: "0px 15px",
+                  width: "250px"
+                }}
                 showSearch
                 onChange={(e) => {
                   setSelectedStatus(e);
+                  setCurrentPage(0); // resetea paginacion a pagina 1 (0) en cada cambio
                 }}
-                className="select navbaritem"
                 placeholder="Filtrar por estado"
                 options={[
                   {
@@ -143,7 +169,7 @@ function App() {
                     label: "Inactivo"
                   },
                   {
-                    value: "all",
+                    value: "",
                     label: "Todos"
                   }
                 ]}
