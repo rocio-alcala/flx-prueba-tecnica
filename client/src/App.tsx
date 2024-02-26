@@ -116,7 +116,7 @@ function App() {
           <Flex>
             <img
               style={{ padding: "30px" }}
-              src="../src/assets/flexxus_logo.png"
+              src="../../public/flexxus_logo.png"
             />
           </Flex>
         </Header>
