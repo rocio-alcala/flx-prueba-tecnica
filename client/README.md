@@ -7,7 +7,7 @@ Esta aplicación es un CRUD de usuarios creado como parte de la prueba técnica 
 # Comentarios
 
 ## Estado global
-El estado global de la aplicación está manejado por rtk-query. Considero que la complejidad de la aplicación no requiere la creación de slices personalizados para el guardado global de información, por lo que no se guardaron datos en el store y se manejaron los datos mediante estados locales.
+El estado global de la aplicación está manejado por rtk-query. Considero que la complejidad de la aplicación no requiere la creación de slices personalizados.
 
 
 
