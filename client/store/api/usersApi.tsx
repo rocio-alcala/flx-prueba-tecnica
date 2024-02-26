@@ -1,12 +1,14 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { User } from "../../src/App";
 
+const SERVER_URL = "http://localhost:4000/";
+
 export const usersApi = createApi({
   reducerPath: "usersApi",
   // creo el tag "users" para invalidar request cada vez
   // que se produzca una modificacion en la db
   tagTypes: ["users"],
-  baseQuery: fetchBaseQuery({ baseUrl: "http://localhost:4000/" }),
+  baseQuery: fetchBaseQuery({ baseUrl: SERVER_URL }),
   endpoints: (builder) => ({
     getUsers: builder.query<
       { dataset: User[]; totalset: number },

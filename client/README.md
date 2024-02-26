@@ -1,30 +1,41 @@
-# React + TypeScript + Vite
+![Logo](https://flexxus.com.ar/wp-content/uploads/elementor/thumbs/logo-flexxus-header-pv8liah8khv6xfynvz03so9v98sk2tr50hts9we7dk.png)
+# Prueba Técnica I+D Team - CRUD de Usuarios en React
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Esta aplicación es un CRUD de usuarios creado como parte de la prueba técnica para Desarrolladores FullStack de Flexxus.
 
-Currently, two official plugins are available:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+### Comentarios
 
-## Expanding the ESLint configuration
+# Estado global
+El estado global de la aplicación está manejado por rtk-query. Considero que la complejidad de la aplicación no requiere la creación de slices personalizados para el guardado global de información, por lo que no se guardaron datos en el store y se manejaron los datos mediante estados locales.
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
 
-- Configure the top-level `parserOptions` property like this:
 
-```js
-export default {
-  // other rules...
-  parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    project: ['./tsconfig.json', './tsconfig.node.json'],
-    tsconfigRootDir: __dirname,
-  },
-}
+# Filtrado de usuarios
+
+El filtrado de usuarios y la paginación se realiza desde el lado del servidor mediante los parámetros enviados en la solicitud. Debido a que la API de `json-server` solo permite el filtrado por un parámetro, elegí realizar el filtrado únicamente por nombre de usuario.
+
+Sin embargo, previo a la implementación de la paginación, en el [commit 560b6c7](https://github.com/rocio-alcala/flx-prueba-tecnica/commit/560b6c771b8409f9ee7f164f2ec9e1ce9ec2c6f5) se implementó el filtrado del lado del cliente realizándolo por ambos parámetros (nombre y apellido de usuario).
+
+
+### API
+
+Es importante que nuestro servidor `json-server` esté corriendo en el puerto 4000.
+Para eso deberas seguir los pasos en el README de la carpeta padre de este proyecto.
+
+### Despliegue
+
+Puedes encontrar una versión desplegada de la aplicación [aquí](https://flx-prueba-tecnica-six.vercel.app/).
+
+O correrla localmente mediante
+
+```bash
+cd ../client
+npm install
+npm run dev
 ```
 
-- Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
-- Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
+
+
+
+
