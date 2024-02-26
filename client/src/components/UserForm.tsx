@@ -1,4 +1,4 @@
-import { Button, Col, Divider, Form, Input, Row, Select, message } from "antd";
+import { Button, Col, Divider, Form, Input, InputNumber, Row, Select, message } from "antd";
 import { User } from "../App";
 import {
   useCreateUserMutation,
@@ -9,18 +9,14 @@ import { v4 as uuidv4 } from "uuid";
 interface UserFormPropsType {
   selectedUser?: User;
   action: string;
-  onSuccess: () => void;
+  onClose: () => void;
 }
 
-export function UserForm({
-  selectedUser,
-  onSuccess,
-  action
-}: UserFormPropsType) {
+//el renderizado del form y la ejecucion de los funciones
+//sera dinamico dependiendo del action recibido
+export function UserForm({ selectedUser, onClose, action }: UserFormPropsType) {
   const [createUser, createResponse] = useCreateUserMutation();
   const [updateUser, updateResponse] = useUpdateUserByIdMutation();
-
-  console.log("@usuario que llega al form", selectedUser);
 
   function handleSuccessCreateUser(formValues: Omit<User, "id">) {
     const newUser: User = { id: uuidv4(), ...formValues };
@@ -33,7 +29,7 @@ export function UserForm({
         message.error(`Hubo un problema agregando el usuario`);
         console.error(`Error agregando el usuario: ${error}`);
       })
-      .finally(() => onSuccess());
+      .finally(onClose);
   }
 
   function handleSuccessUpdateUser(formValues: Omit<User, "id">) {
@@ -48,11 +44,10 @@ export function UserForm({
         message.error(`Hubo un problema editando el usuario`);
         console.error(`Error editando el usuario: ${error}`);
       })
-      .finally(() => onSuccess());
+      .finally(onClose);
   }
 
   const onFinish = (formValues: User) => {
-    console.log("@values enviados en el form", formValues);
     if (action === "create") {
       handleSuccessCreateUser(formValues);
     } else {
@@ -61,8 +56,15 @@ export function UserForm({
     }
   };
 
-  const onFinishFailed = (errorInfo: any) => {
-    console.error(errorInfo);
+  const onFinishFailed = (errorInfo: {
+    values: User;
+    errorFields: {
+      name: (string | number)[];
+      errors: string[];
+    }[];
+    outOfDate: boolean;
+  }) => {
+    console.error("Error de validacion en datos: ",errorInfo);
     message.info("Ocurrio un error al enviar los datos");
   };
 
@@ -92,6 +94,8 @@ export function UserForm({
                 message: "El nombre usuario debe ser menor a 12 caracteres"
               }
             ]}
+            required={false}
+            style={{ fontWeight: "550" }}
           >
             <Input placeholder="Ingresa usuario" />
           </Form.Item>
@@ -107,6 +111,8 @@ export function UserForm({
                 message: "Por favor ingrese un correo electrónico válido"
               }
             ]}
+            required={false}
+            style={{ fontWeight: "550" }}
           >
             <Input placeholder="Ingresa email" />
           </Form.Item>
@@ -121,13 +127,15 @@ export function UserForm({
               { required: true, message: "El nombre de usuario es requerido" },
               {
                 min: 2,
-                message: "El nombre usuario debe ser mayor a 2 caracteres"
+                message: "El nombre debe ser mayor a 2 caracteres"
               },
               {
                 max: 12,
-                message: "El nombre usuario debe ser menor a 12 caracteres"
+                message: "El nombre debe ser menor a 12 caracteres"
               }
             ]}
+            required={false}
+            style={{ fontWeight: "550" }}
           >
             <Input placeholder="Ingresa nombre" />
           </Form.Item>
@@ -137,7 +145,22 @@ export function UserForm({
           <Form.Item
             label="Apellido"
             name="lastname"
-            rules={[{ required: true, message: "Please input your password!" }]}
+            rules={[
+              {
+                required: true,
+                message: "El apellido de usuario es requerido"
+              },
+              {
+                min: 2,
+                message: "El apellido debe ser mayor a 2 caracteres"
+              },
+              {
+                max: 12,
+                message: "El apellido debe ser menor a 12 caracteres"
+              }
+            ]}
+            required={false}
+            style={{ fontWeight: "550" }}
           >
             <Input placeholder="Ingresa apellido" />
           </Form.Item>
@@ -149,6 +172,8 @@ export function UserForm({
             label="Estado"
             name="status"
             rules={[{ required: true, message: "Por favor ingresa un estado" }]}
+            required={false}
+            style={{ fontWeight: "550" }}
           >
             <Select
               placeholder="Seleccione un estado"
@@ -172,23 +197,23 @@ export function UserForm({
             rules={[
               {
                 required: true,
-                message: "Por favor ingrese la edad"
+                message: "Por favor ingrese la edad como numero"
               },
               {
-                pattern: /^[0-9]+$/,
-                message: "Por favor ingrese solo números"
+                pattern: /^([0-9]|[1-8][0-9]|100)$/,
+                message: "Por favor ingrese solo números entre 0 y 100"
               }
             ]}
+            required={false}
+            style={{ fontWeight: "550" }}
           >
-            <Input placeholder="Ingresa edad" />
+            <InputNumber style={{width: "100%"}} placeholder="Ingresa edad" />
           </Form.Item>
         </Col>
       </Row>
       <Divider />
       <Row justify="end">
-        <Form.Item
-          style={{ textAlign: "right", marginBottom: -4, marginRight: -4 }}
-        >
+        <Form.Item style={{ marginBottom: -4 }}>
           <Button
             type="primary"
             htmlType="submit"

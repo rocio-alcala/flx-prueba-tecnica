@@ -3,12 +3,12 @@ import { useDeleteUserByIdMutation } from "../../store/api/usersApi";
 import { User } from "../App";
 
 interface CheckDeletePropsType {
-  onSuccess: () => void;
+  onClose: () => void;
   selectedUser?: User;
 }
 
-export default function CheckDelete({
-  onSuccess,
+export default function ConfirmDelete({
+  onClose,
   selectedUser
 }: CheckDeletePropsType) {
   const [deleteUser] = useDeleteUserByIdMutation();
@@ -26,7 +26,7 @@ export default function CheckDelete({
         message.error(`Hubo un problema elimiando usuario`);
         console.error(`Hubo un problema elimiando usuario: ${error}`);
       })
-      .finally(() => onSuccess());
+      .finally(onClose);
   }
 
   return (
@@ -40,7 +40,7 @@ export default function CheckDelete({
       <Row justify="end">
         <Col>
           <Space>
-            <Button key="cancel" onClick={() => clearUser(undefined)}>
+            <Button key="cancel" onClick={onClose}>
               Cancelar
             </Button>
             <Button

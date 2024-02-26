@@ -63,13 +63,10 @@ function App() {
       dataIndex: "status",
       key: "status",
       render: (status: User["status"]) => {
-        let color = "green";
-        let estado = "Activo";
-        if (status === "inactive") {
-          color = "red";
-          estado = "Inactivo";
-        }
-        return <Tag color={color}>{estado}</Tag>;
+        const color = status === "active" ? "green" : "red";
+        const text = status === "active" ? "Activo" : "Inactivo";
+
+        return <Tag color={color}>{text}</Tag>;
       },
       width: "10%"
     },
@@ -79,21 +76,10 @@ function App() {
       render: (user: User) => {
         return (
           <>
-            <Button
-              onClick={() => {
-                console.log("user seleccionado", user);
-                setSelectedUpdateUser(user);
-              }}
-              type="link"
-            >
+            <Button onClick={() => setSelectedUpdateUser(user)} type="link">
               Editar
             </Button>
-            <Button
-              onClick={() => {
-                setSelectedDeleteUser(user);
-              }}
-              type="link"
-            >
+            <Button onClick={() => setSelectedDeleteUser(user)} type="link">
               Eliminar
             </Button>
           </>
@@ -103,33 +89,23 @@ function App() {
     }
   ];
 
-  const renderUsers = useMemo(() => {
-    if (users) {
-      const statusFilter =
-        selectedStatus && selectedStatus !== "all"
-          ? users.filter((user) => user.status === selectedStatus)
-          : users;
-      const searchFilter = searchInput
-        ? statusFilter.filter((user) =>
-            `${user.name} ${user.lastname}`
-              .toLocaleLowerCase()
-              .includes(searchInput.toLocaleLowerCase())
-          )
-        : statusFilter;
-      return searchFilter;
-    }
-  }, [users, selectedStatus, searchInput]);
+  if (fetchError) {
+    console.error("@Error al cargar usuarios:", fetchError);
+    message.error("Error al cargar usuarios");
+  }
 
   return (
     <>
-      <Layout>
-        <Header className="header">
-          <img
-            className="flexxusimg"
-            src="../src/assets/Flexxus-Logo-Black-sidebar 1.png"
-          />
+      <Layout style={{ minHeight: "100vh" }}>
+        <Header style={{ backgroundColor: "#d9d9d9", height: "fit-content" }}>
+          <Flex>
+            <img
+              style={{ padding: "30px" }}
+              src="../src/assets/flexxus_logo.png"
+            />
+          </Flex>
         </Header>
-        <Content className="content">
+        <Content style={{ padding: "20px", margin: "0px 100px" }}>
           <Row>
             <Col>
               <Breadcrumb separator="/">
@@ -174,7 +150,7 @@ function App() {
               />
             </Space>
             <Button
-              className="adduser navbaritem"
+              style={{ height: "40px", fontSize: "15px" }}
               type="primary"
               onClick={() => setIsCreateUserModalOpen(true)}
             >
@@ -182,16 +158,27 @@ function App() {
             </Button>
           </Flex>
           <Table
+            rowKey="id"
             className="table"
-            dataSource={renderUsers}
+            dataSource={users}
             columns={columns}
             loading={isLoading}
-            key={"id"}
+            pagination={false}
+          />
+          <Pagination
+            style={{ textAlign: "right", margin: "30px" }}
+            current={currentPage + 1}
+            pageSize={PAGE_COUNT}
+            total={totalset}
+            onChange={(current) => setCurrentPage(current - 1)}
+            showLessItems
           />
         </Content>
       </Layout>
 
-      {/*       TO-DO AGREGAR COEMNTARIO */}
+      {/* MODALS FUERA DE LAYOUT YA QUE NO SIEMPRE SE RENDERIZARAN
+      SE APLICO RENDERIZADO CONDICIONAL PARA QUE SE PRODUZCA EL DESMONTADO DEL COMPONENTE
+      Y ASI SE ACTUALICEN LOS DATOS EN FORM */}
       {isCreateUserModalOpen && (
         <Modal
           onOk={() => setIsCreateUserModalOpen(false)}
@@ -204,7 +191,7 @@ function App() {
           <Divider />
           <UserForm
             action="create"
-            onSuccess={() => setIsCreateUserModalOpen(false)}
+            onClose={() => setIsCreateUserModalOpen(false)}
           />
         </Modal>
       )}
@@ -219,7 +206,7 @@ function App() {
         >
           <Divider />
           <UserForm
-            onSuccess={() => setSelectedUpdateUser(undefined)}
+            onClose={() => setSelectedUpdateUser(undefined)}
             action="update"
             selectedUser={selectedUpdateUser}
           />
@@ -228,12 +215,12 @@ function App() {
 
       <Modal
         onCancel={() => setSelectedDeleteUser(undefined)}
-        open={!!selectedDeleteUser}
+        open={Boolean(selectedDeleteUser)}
         title="Eliminar usuario"
         footer={null}
       >
-        <CheckDelete
-          onSuccess={() => setSelectedDeleteUser(undefined)}
+        <ConfirmDelete
+          onClose={() => setSelectedDeleteUser(undefined)}
           selectedUser={selectedDeleteUser}
         />
       </Modal>
